@@ -1,1 +1,173 @@
 # suiseisai-site
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>文化祭ホームページ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 10px;
+      background: #f4f4f4;
+    }
+    section {
+      margin-bottom: 30px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+    }
+    .event-box {
+      text-align: center;
+      font-size: 1.2rem;
+    }
+    .event-now {
+      color: green;
+      font-weight: bold;
+    }
+    .event-next {
+      color: #555;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      max-width: 500px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .close-btn {
+      font-size: 1.5rem;
+      cursor: pointer;
+      float: right;
+    }
+    .slider img {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 10px;
+    }
+    button {
+      padding: 10px;
+      font-size: 1rem;
+      margin: 5px;
+    }
+    @media (max-width: 600px) {
+      h2 { font-size: 1.2rem; }
+      button { font-size: 0.9rem; padding: 8px; }
+      .modal-content { width: 90%; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>ようこそ！文化祭ホームページへ</h1>
+
+<section>
+  <h2>パンフレット</h2>
+  <iframe src="https://drive.google.com/file/d/1iMPHzBxOz6Xc9JBmZ_I7TD8-oiUJJd3X/preview"></iframe>
+</section>
+
+<section>
+  <h2>現在のイベント</h2>
+  <div class="event-box">
+    <div class="event-now" id="current-event">読み込み中...</div>
+    <div class="event-next" id="next-event">次のイベントを読み込み中...</div>
+  </div>
+</section>
+
+<section>
+  <h2>催事の詳細</h2>
+  <div class="event-list">
+    <button onclick="showDetails('takoyaki')">たこ焼き</button>
+    <button onclick="showDetails('karaage')">からあげ</button>
+  </div>
+</section>
+
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">×</span>
+    <div id="modal-text"></div>
+  </div>
+</div>
+
+<section>
+  <h2>広告スライド</h2>
+  <div class="slider">
+    <img id="slide" src="slide1.jpg" alt="広告スライド" />
+  </div>
+</section>
+
+<script>
+  const eventDetails = {
+    takoyaki: "たこ焼き：熱々のたこ入り！100円。場所：2階 2-1教室。",
+    karaage: "からあげ：ジューシーで大人気！150円。場所：体育館前。"
+  };
+  function showDetails(key) {
+    document.getElementById("modal-text").innerText = eventDetails[key];
+    document.getElementById("modal").style.display = "flex";
+  }
+  function closeModal() {
+    document.getElementById("modal").style.display = "none";
+  }
+
+  const slides = ["slide1.jpg", "slide2.jpg", "slide3.jpg"];
+  let index = 0;
+  setInterval(() => {
+    index = (index + 1) % slides.length;
+    document.getElementById("slide").src = slides[index];
+  }, 3000);
+
+  const events = [
+    { start: "09:00", end: "10:00", title: "開会式", place: "体育館" },
+    { start: "10:00", end: "11:00", title: "2年3組 お化け屋敷", place: "2階 3-B教室" },
+    { start: "11:00", end: "12:00", title: "軽音ライブ", place: "音楽室" },
+    { start: "12:00", end: "13:00", title: "1年生展示", place: "1階 廊下" },
+    { start: "13:00", end: "14:00", title: "クイズ大会", place: "視聴覚室" },
+    { start: "14:00", end: "15:00", title: "閉会式", place: "体育館" },
+  ];
+  function updateEventInfo() {
+    const now = new Date();
+    const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+    let current = null;
+    let next = null;
+    for (let i = 0; i < events.length; i++) {
+      const e = events[i];
+      if (currentTime >= e.start && currentTime < e.end) {
+        current = e;
+        next = events[i + 1] || null;
+        break;
+      } else if (currentTime < e.start) {
+        current = null;
+        next = e;
+        break;
+      }
+    }
+    const currentDiv = document.getElementById("current-event");
+    const nextDiv = document.getElementById("next-event");
+    currentDiv.innerHTML = current ? `今やっているのは「${current.title}」<br>場所：${current.place}` : "今行われているイベントはありません";
+    nextDiv.innerHTML = next ? `次のイベントは「${next.title}」（${next.start}〜）<br>場所：${next.place}` : "次のイベントはありません";
+  }
+  updateEventInfo();
+  setInterval(updateEventInfo, 60000);
+</script>
+
+</body>
+</html>
